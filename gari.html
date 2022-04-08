@@ -1,0 +1,83 @@
+<script src="scripts/collision.js"></script>
+<script src="scripts/player.js"></script>
+<script src="scripts/enemy.js"></script>
+<script src="scripts/boss.js"></script>
+<script src="scripts/levels.js"></script>
+
+<script src="https://koda.nu/simple.js">
+	function start() {
+		//updatesPerSecond = 60;
+		
+		//player setup
+		player = new player();
+
+		//boss setup
+		boss = new boss();
+		bossangle = Math.random()*Math.PI*2;
+		console.log(bossangle);
+		boss.vx = cos(bossangle)*8;
+		boss.vy = sin(bossangle)*8;
+		
+		//starting room setup
+		current = dungeon.rooms[dungeon.roomY][dungeon.roomX];
+		restartLevel(-1, 0);
+		
+		tx = totalWidth/2-current.tileSize*current.width/2; 
+		ty = totalHeight/2-current.tileSize*current.height/2;
+		translate(tx, ty);
+	}
+
+	function update() {
+		//basic saker
+		clearScreen();
+		printLevel();
+		movePlayer();
+		collisionCheck(player);
+		printPlayer();
+		updatePlayerBullets();
+
+		if (!dungeon.inBossRoom) {
+			updateEnemies();
+			updateEnemyBullets();
+			//projektiler moment 
+			for (i = 0; i < playerBullets.length; i++) {
+				p = player;
+				bp = playerBullets[i];
+				for (j = 0; j < enemyBullets.length; j++) {
+					be = enemyBullets[j];
+					if (bp.x+bp.size >= be.x && be.x+be.size >= bp.x && bp.y+bp.size >= be.y && be.y+be.size >= bp.y) {
+						bp.alive = false;
+						be.alive = false;
+					}
+				}
+			}
+		}
+		else {
+			updateBoss();
+			updateBossBullets();
+			//projektiler moment 
+			for (i = 0; i < playerBullets.length; i++) {
+				p = player;
+				bp = playerBullets[i];
+				for (j = 0; j < bossBullets.length; j++) {
+					be = bossBullets[j];
+					if (bp.x+bp.size >= be.x && be.x+be.size >= bp.x && bp.y+bp.size >= be.y && be.y+be.size >= bp.y) {
+						bp.alive = false;
+						be.alive = false;
+					}
+				}
+			}
+		}
+		
+		if (!player.alive) {
+			fill("#D55");
+				text(totalWidth / 2 - 480, totalHeight / 2 - 50, 50, "ye atame lamo XD", "#FFF");
+			stopUpdate();
+		}
+		if (!boss.alive && dungeon.inBossRoom) {
+			fill("#5D5");
+			text(totalWidth / 2 - 480, totalHeight / 2 - 50, 50, "yey", "#FFF");
+			stopUpdate();
+		}
+	}
+</script>
